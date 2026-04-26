@@ -1,0 +1,44 @@
+version: 0.2
+
+env:
+  variables:
+    TF_VERSION: "1.7.0"
+    AWS_DEFAULT_REGION: "ap-south-1"
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+    commands:
+      - echo "Installing Terraform $TF_VERSION..."
+      - curl -sSL https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip -o terraform.zip
+      - unzip -o terraform.zip -d /usr/local/bin/
+      - chmod +x /usr/local/bin/terraform
+      - terraform version
+
+  pre_build:
+    commands:
+      - echo "Initializing Terraform..."
+      - terraform init -input=false
+      - echo "Validating Terraform configuration..."
+      - terraform validate
+      - echo "Running Terraform plan..."
+      - terraform plan -out=tfplan -input=false
+
+  build:
+    commands:
+      - echo "Applying Terraform configuration..."
+      - terraform apply -auto-approve -input=false tfplan
+
+  post_build:
+    commands:
+      - echo "Terraform apply complete."
+      - echo "Fetching outputs..."
+      - terraform output
+
+artifacts:
+  files:
+    - tfplan
+    - "**/*.tf"
+    - terraform.tfvars
+  discard-paths: no
