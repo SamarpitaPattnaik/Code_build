@@ -23,12 +23,12 @@ phases:
       - echo "Validating Terraform configuration..."
       - terraform validate
       - echo "Running Terraform plan..."
-      - terraform plan -out=tfplan -input=false
+      - terraform plan 
 
   build:
     commands:
       - echo "Applying Terraform configuration..."
-      - terraform apply -auto-approve -input=false tfplan
+      - terraform apply -auto-approve 
 
   post_build:
     commands:
